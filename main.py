@@ -38,23 +38,64 @@ def main():
     else:
         grafo_obj = Grafo(cidades_subset)
     
-    print(f"\nUsando {num_cidades} cidades.")
+    print(f"\n{'='*60}")
+    print(f"RESULTADOS PARA {num_cidades} CIDADES")
+    print(f"{'='*60}")
 
-    print("\nExecutando Busca Exaustiva (Espaço de Estados)...")
+    # Busca Exaustiva
+    print("\n🔍 BUSCA EXAUSTIVA (Solução Ótima)")
+    print("-" * 40)
     try:
         resultado_exaustiva, tempo_exaustiva = benchmark(busca_exaustiva_tsp, grafo_obj)
-        print(f"Busca Exaustiva - Melhor caminho: {resultado_exaustiva[0]}, Distância: {resultado_exaustiva[1]:.2f}, Tempo: {tempo_exaustiva:.4f} segundos")
+        print(f"  Caminho: {' → '.join(map(str, resultado_exaustiva[0]))}")
+        print(f"  Distância: {resultado_exaustiva[1]:.2f} km")
+        print(f"  Tempo: {tempo_exaustiva:.4f} s")
     except ValueError as e:
-        print(f"Erro: {e}")
+        print(f"  Erro: {e}")
         return
 
-    print("\nExecutando Heurística...")
+    # Heurística
+    print("\n🎯 HEURÍSTICA (Vizinho Mais Próximo)")
+    print("-" * 40)
     resultado_heuristica, tempo_heuristica = benchmark(vizinho_mais_proximo, grafo_obj)
-    print(f"Heurística - Melhor caminho: {resultado_heuristica[0]}, Distância: {resultado_heuristica[1]:.2f}, Tempo: {tempo_heuristica:.4f} segundos")
+    print(f"  Caminho: {' → '.join(map(str, resultado_heuristica[0]))}")
+    print(f"  Distância: {resultado_heuristica[1]:.2f} km")
+    print(f"  Tempo: {tempo_heuristica:.4f} s")
 
-    print("\nExecutando Branch and Bound...")
+    # Branch and Bound
+    print("\n🌳 BRANCH AND BOUND (Solução Ótima Otimizada)")
+    print("-" * 40)
     resultado_bb, tempo_bb = benchmark(tsp_branch_and_bound, grafo_obj)
-    print(f"Branch and Bound - Melhor caminho: {resultado_bb[0]}, Distância: {resultado_bb[1]:.2f}, Tempo: {tempo_bb:.4f} segundos")
+    print(f"  Caminho: {' → '.join(map(str, resultado_bb[0]))}")
+    print(f"  Distância: {resultado_bb[1]:.2f} km")
+    print(f"  Tempo: {tempo_bb:.4f} s")
+
+    # Comparação
+    print(f"\n{'='*60}")
+    print("COMPARAÇÃO DE RESULTADOS")
+    print(f"{'='*60}")
+    print(f"{'Algoritmo':<20} {'Distância (km)':<15} {'Tempo (s)':<10}")
+    print("-" * 45)
+    print(f"{'Busca Exaustiva':<20} {resultado_exaustiva[1]:<15.2f} {tempo_exaustiva:<10.4f}")
+    print(f"{'Heurística':<20} {resultado_heuristica[1]:<15.2f} {tempo_heuristica:<10.4f}")
+    print(f"{'Branch and Bound':<20} {resultado_bb[1]:<15.2f} {tempo_bb:<10.4f}")
+
+    print(f"\n{'='*60}")
+    print("ANÁLISE DE PERFORMANCE")
+    print(f"{'='*60}")
+    print(f"• Busca Exaustiva: Explora {(num_cidades-1)}! possibilidades")
+    print(f"• Heurística: Aproximação rápida")
+    erro_heur = ((resultado_heuristica[1] - resultado_exaustiva[1]) / resultado_exaustiva[1]) * 100
+    if abs(erro_heur) > 1e-6:
+        print(f"  - Erro relativo: {erro_heur:+.2f}%")
+    print(f"• Branch and Bound: Solução ótima com poda inteligente")
+    erro_bb = ((resultado_bb[1] - resultado_exaustiva[1]) / resultado_exaustiva[1]) * 100
+    if abs(erro_bb) > 1e-6:
+        print(f"  - Erro relativo: {erro_bb:+.2f}%")
+    if tempo_bb < tempo_exaustiva:
+        print(f"• Branch and Bound foi {tempo_exaustiva/tempo_bb:.1f}x mais rápido que Busca Exaustiva")
+    else:
+        print(f"• Para {num_cidades} cidades, Branch and Bound levou mais tempo devido à complexidade")
 
 if __name__ == "__main__":
     main()  
